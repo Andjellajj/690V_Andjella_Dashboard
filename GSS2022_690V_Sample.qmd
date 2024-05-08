@@ -1,0 +1,180 @@
+---
+title: "Sample_GSS_visualization"
+format: html
+editor: visual
+---
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(flexdashboard)
+library(ggplot2)
+library(dplyr)
+library(leaflet)
+library(sp)
+library(sf)
+library(maps)
+library(tidyverse)
+library(rnaturalearth)
+library(rnaturalearthdata)
+```
+
+```{r}
+install.packages("flexdashboard")
+library(flexdashboard)
+
+```
+
+```{r}
+#let's read the data
+GSS2022 <- read_dta("GSS2022.dta")
+head(GSS2022)
+```
+
+```{r}
+
+# Filter out NA values
+degree_data <- subset(GSS2022, !is.na(degree))
+
+# Calculate the percentage of people who completed high school
+high_school_percentage <- sum(degree_data$degree == 1) / nrow(degree_data) * 100
+
+# Create a bar plot for the distribution of highest degree completed
+univ_cat_degree <- ggplot(degree_data, aes(x = as.factor(degree))) + 
+  geom_bar(fill = "gray", color = "black", alpha = 0.8) +
+  labs(
+    title = "Distribution of Highest Degree Completed",
+    subtitle = "Analyzing the highest degree of survey participants",
+    x = "Degree",
+    y = "Frequency",
+    caption = "Source: 2022 General Social Survey"
+  ) +
+  theme_minimal() +
+  # Set custom labels for x-axis
+  scale_x_discrete(labels = c(
+    "0" = ">H.S",
+    "1" = "H.S",
+    "2" = "A.D",
+    "3" = "B.A",
+    "4" = "Graduate"
+  )) +
+  # Add annotation for the "High School" bar
+  annotate("text", x = 2, y = 1000, label = paste0("Rate: ", round(high_school_percentage, 2), "%"), color = "black")
+
+# Save the plot as an .rds file
+saveRDS(univ_cat_degree, file = "plot1.rds")
+
+# Display the plot
+univ_cat_degree
+
+
+
+```
+
+```{r}
+#univariate numerical plot
+
+#creating a histogram for age
+univ_num_age <- ggplot(GSS2022, aes(x = age)) +
+  geom_histogram(binwidth = 5, fill = "gray", color = "black", na.rm = TRUE) +
+  labs(
+    title = "Distribution of Age",
+    subtitle = "Analyzing the age distribution of survey participants",
+    x = "Age",
+    y = "Frequency",
+    caption = "Source: 2022 General Social Survey"
+  ) +
+  theme_minimal()
+
+# Save the plot as an .rds file
+saveRDS(univ_num_age, file = "plot2.rds")
+
+# Display the plot
+univ_num_age
+
+
+
+```
+
+```{r}
+# Define labels for frequency of church attendance
+
+attendlabs <- c("Several times a week", "Every week", "Nearly every week", "2-3 Times a month", 
+                "Once a month", "Several times a year", "2-3 times a year", "Less once a year", "Never")
+
+# Reverse the order of attendlabs
+attendlabs <- rev(attendlabs)
+
+# Define the mapping from numbers to labels
+partyid_labels <- c("Strong Demo", "Not Strong Demo", "Indep, close Demo", "Indep", "Indep, close Repu",
+                    "Not Strong Repu", "Stong Repu", "Other Party")
+
+# Define custom colors
+custom_colors <- c("#1F78B4", "#33A02C", "#FF7F00", "#6A3D9A", "#E31A1C", "#FFD700", "#DD66AA", "#4C4C4C")
+
+# Create the bivariate plot
+plot <- GSS2022 |>
+  filter(!is.na(attend) & !is.na(partyid)) |>
+  ggplot(aes(x = as.factor(attend), fill = factor(partyid)))+
+  geom_bar(position = "dodge") +  # Use dodge position for grouped bars
+  labs(title = "Relationship Between Church Attendance and Political Affiliation",
+       subtitle = "Analyzing patterns of religiosity on political beliefs",
+       x = "Frequency of Church Attendance",
+       y = "Count") +
+  scale_x_discrete(labels = attendlabs) +  # Customize x-axis labels
+  scale_fill_manual(values = custom_colors, name = "Political Affiliation", labels = partyid_labels) +  # Use custom fill labels and colors
+  coord_flip() +  # Flip the plot
+  theme_minimal() +  # Use a minimal theme
+  theme(axis.text.x = element_text(angle = 0, vjust = 0.5, hjust = 1),  # Adjust x-axis labels
+        axis.text.y = element_text(color = "black"),  # Adjust y-axis label color
+        legend.position = "right",  # Position the legend
+        legend.title = element_blank(),  # Remove legend title
+        plot.caption = element_text(hjust = 1, color = "black", size = 8)) +  # Adjust source annotation position and style
+  labs(caption = "Source: 2022 General Social Survey")  
+
+# Display the plot
+plot
+
+# Save the plot as an .rds file
+saveRDS(plot, file = "plot3.rds")
+
+```
+
+```{r}
+us_hospital_locations <- read_csv("us_hospital_locations.csv")
+```
+
+```{r}
+states_sf <- st_read("States_shapefile-shp/States_shapefile.shp")
+                     
+#States_shapefile.shp") 
+
+# Create the base plot
+states <- ggplot() +
+  geom_sf(data = states_sf) +
+  coord_sf(xlim = c(-125, -65), ylim = c(20, 50)) +
+  labs(
+    x = "Longitude",
+    y = "Latitude",
+    caption = "Source: Kaggle",
+    title = "Hospital Locations in the United States",
+    subtitle = "Spatial distribution of hospitals across states"
+  )
+
+# Overlay hospital locations on the base plot
+final_plot <- states +
+  geom_point(
+    data = us_hospital_locations,
+    aes(x = LONGITUDE, y = LATITUDE, color = STATUS),
+    pch = 25,
+    size = 0.5
+  )
+
+final_plot
+
+# Save the final plot as an RDS file
+saveRDS(final_plot, file = "plot4.rds")
+
+
+
+```

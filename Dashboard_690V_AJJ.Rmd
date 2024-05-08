@@ -1,0 +1,77 @@
+---
+title: "Presentation_Dashboard_690V_AJJ"
+bibliography: testVisual.bib
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+---
+
+
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library (ggplot2)
+library(dplyr)
+library(haven)
+library(sf)
+```
+Page 1
+===================================== 
+## Column {data-width="450"}
+
+### Univariate Categorical Plot
+
+```{r}
+readRDS("Plot1.rds")
+```
+
+
+Page 2
+===================================== 
+## Column {data-width="450"}
+### Univariate Numerical Plot
+
+```{r}
+readRDS("Plot2.rds")
+```
+
+Page 3
+===================================== 
+## Column {data-width="450"}
+
+### Bivariate Categorical Plot 
+
+```{r}
+readRDS("Plot3.rds")
+```
+
+Page 4
+===================================== 
+## Column {data-width="450"}
+
+### Map of Hospitals Located in the U.S
+
+```{r}
+readRDS("Plot4.rds")
+```
+
+
+Page 5
+===================================== 
+## Column {data-width="450"}
+
+### References
+
+For Plot 1, Plot 2 and Plot 3:
+I use the General Social Survey (GSS) 2022 data. The GSS is one of the most influential studies in the social sciences, and is frequently referenced in leading publications, including the New York Times, the Wall Street Journal, and the Associated Press. Here is the link" https://gss.norc.org/get-the-data
+
+
+For Plot 4:
+I found the dataset on Kaggle website. Kaggle allows users to find datasets they want to use in building AI models, publish datasets, work with other data scientists and machine learning engineers, and enter competitions to solve data science challenges.
+
+This dataset contains information about 7596 hospitals in the US, including latitude, longitude, staff, beds, ownership, among others.
+All records were extracted from the U.S. Department of Homeland Security. Here is the link of the datase. https://www.kaggle.com/datasets/andrewmvd/us-hospital-locations
+
+Thank you for your attention!
+
